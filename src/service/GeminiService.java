@@ -1,12 +1,9 @@
 package service;
 
+import model.ChatCategory;
 import model.ChatModel;
-import model.GeminiModel;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.w3c.dom.Text;
+import util.TextUtil;
 
 public class GeminiService extends AbstractChatService {
     public GeminiService() {
@@ -15,6 +12,7 @@ public class GeminiService extends AbstractChatService {
 
     @Override
     public String chat(String input, ChatModel model, String instruction) {
+        if (model.category != ChatCategory.GEMINI) return "제미나이 모델이 아닙니다!";
         String payload = """
                     {
                     "contents": [{"parts": [{"text": "%s"}]}],
@@ -26,7 +24,8 @@ public class GeminiService extends AbstractChatService {
                 "Content-Type", "application/json"
         };
         String output = sendRequest(API_URL.formatted(model.modelCode), payload, headers);
-        return output.split("\"text\": \"")[1]
-                .split("\"\\s*}")[0];
+//        return output.split("\"text\": \"")[1]
+//                .split("\"\\s*}")[0];
+        return TextUtil.splitJson(output, "\"text\": \"", "\"\\s*}");
     }
 }
